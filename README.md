@@ -1,7 +1,5 @@
-[build-image]: https://travis-ci.com/JamesOwers/midi_degradation_toolkit.svg?branch=master
-[build-url]: https://travis-ci.com/JamesOwers/midi_degradation_toolkit
-[coverage-image]: https://codecov.io/gh/JamesOwers/midi_degradation_toolkit/branch/master/graph/badge.svg
-[coverage-url]: https://codecov.io/github/JamesOwers/midi_degradation_toolkit?branch=master
+[build-image]: https://github.com/JamesOwers/midi_degradation_toolkit/actions/workflows/ci.yml/badge.svg
+[build-url]: https://github.com/JamesOwers/midi_degradation_toolkit/actions/workflows/ci.yml
 [license-image]: https://img.shields.io/github/license/JamesOwers/midi_degradation_toolkit
 [license-url]: https://github.com/JamesOwers/midi_degradation_toolkit/blob/master/LICENSE
 [arxiv-image]: http://img.shields.io/badge/cs.SD-arXiv%3A2010.00059-B31B1B.svg
@@ -20,7 +18,6 @@
 # mdtk - The MIDI Degradation Toolkit
 
 [![Build Status][build-image]][build-url]
-[![Code Coverage][coverage-image]][coverage-url]
 [![GitHub license][license-image]][license-url]
 [![ArXiv Paper][arxiv-image]][arxiv-url]
 <!-- [![PyPI Version][pypi-image]][pypi-url] -->
