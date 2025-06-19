@@ -1,17 +1,93 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdtk"
+version = "2025.1.0"
+license = { text = "MIT" }
+description = "A toolkit for making Altered and Corrupted MIDI Excerpts (ACME datasets)"
+readme = "README.md"
+authors = [
+    { name = "James Owers", email = "james.f.owers@gmail.com" }
+]
+keywords = ["MIDI", "ACME", "melody", "music", "dataset"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=2.3.0",
+    "pandas>=2.3.0",
+    "pretty_midi>=0.2.10",
+    "torch>=2.5.1",
+    "tqdm>=4.67.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/JamesOwers/midi_degradation_toolkit"
+
+[project.optional-dependencies]
+dev = [
+    "black>=25.1.0",
+    "flake8>=7.2.0",
+    "isort",
+    "ipykernel",
+    "mypy",
+    "pre-commit",
+    "pylint",
+    "pytest>=8.4.1",
+    "pytest-cov",
+]
+docs = [
+    "jupyterlab>=4.2.3",
+    "matplotlib>=3.10.3",
+    "seaborn>=0.13.2",
+    "partitura>=1.6.0",
+    "jupytext>=1.17.2",
+]
+eval = [
+    "matplotlib>=3.10.3",
+    "mir_eval>=0.8.2",
+    "seaborn>=0.13.2",
+]
+
+[tool.setuptools]
+packages = ["mdtk"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "mdtk/tests"
+]
+addopts = "--cov"
+
 [tool.black]
-target_version = ['py37']
 line-length = 88
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203,W503"
