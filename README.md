@@ -1,7 +1,7 @@
-[build-image]: https://github.com/JamesOwers/midi_degradation_toolkit/actions/workflows/ci.yml/badge.svg
-[build-url]: https://github.com/JamesOwers/midi_degradation_toolkit/actions/workflows/ci.yml
-[license-image]: https://img.shields.io/github/license/JamesOwers/midi_degradation_toolkit
-[license-url]: https://github.com/JamesOwers/midi_degradation_toolkit/blob/master/LICENSE
+[build-image]: https://github.com/finlaymiller/midi_degradation_toolkit/actions/workflows/ci.yml/badge.svg
+[build-url]: https://github.com/finlaymiller/midi_degradation_toolkit/actions/workflows/ci.yml
+[license-image]: https://img.shields.io/github/license/finlaymiller/midi_degradation_toolkit
+[license-url]: https://github.com/finlaymiller/midi_degradation_toolkit/blob/master/LICENSE
 [arxiv-image]: http://img.shields.io/badge/cs.SD-arXiv%3A2010.00059-B31B1B.svg
 [arxiv-url]: https://arxiv.org/abs/2010.00059
 <!-- [docs-image]: https://readthedocs.org/projects/midi_degradation_toolkit/badge/?version=latest
@@ -10,7 +10,7 @@
 [pypi-url]: https://pypi.python.org/pypi/midi_degradation_toolkit -->
 
 <p align="center">
-  <img width="90%" src="https://raw.githubusercontent.com/JamesOwers/midi_degradation_toolkit/master/img/mdtk_logo.png?sanitize=true" />
+  <img width="90%" src="https://raw.githubusercontent.com/finlaymiller/midi_degradation_toolkit/master/img/mdtk_logo.png?sanitize=true" />
 </p>
 
 ----------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ the scripts in this repository and use the toolkit in your own scripts
 (`import mdtk`). The requirements are described in the `setup.cfg` file.
 
 ```bash
-git clone https://github.com/JamesOwers/midi_degradation_toolkit
+git clone https://github.com/finlaymiller/midi_degradation_toolkit
 cd midi_degradation_toolkit
 conda update conda
 conda create -n mdtk python=3.7
