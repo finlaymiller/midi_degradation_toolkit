@@ -1039,7 +1039,7 @@ def add_note(
     end_time = excerpt[["onset", "dur"]].sum(axis=1).max()
 
     if align_pitch:
-        pitch = excerpt["pitch"].between(min_pitch, max_pitch, inclusive=True)
+        pitch = excerpt["pitch"].between(min_pitch, max_pitch, inclusive="both")
         pitch = excerpt["pitch"][pitch].unique()
         if len(pitch) == 0:
             logging.warning("No valid aligned pitch in given range.")

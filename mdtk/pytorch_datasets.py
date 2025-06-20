@@ -76,7 +76,7 @@ class CommandDataset(Dataset):
         self.transform = transform
         self.formatter = FORMATTERS["command"]
 
-        with open(corpus_path, "r", encoding=encoding) as f:
+        with open(corpus_path, encoding=encoding) as f:
             if self.corpus_lines is None and not in_memory:
                 for _ in tqdm.tqdm(f, desc="Counting nr corpus lines"):
                     self.corpus_lines += 1
@@ -89,7 +89,7 @@ class CommandDataset(Dataset):
                 self.corpus_lines = len(self.lines)
 
         if not in_memory:
-            self.file = open(corpus_path, "r", encoding=encoding)
+            self.file = open(corpus_path, encoding=encoding)
 
     def __len__(self):
         return self.corpus_lines
@@ -159,7 +159,7 @@ class CommandDataset(Dataset):
             line = self.file.__next__()
             if line is None:
                 self.file.close()
-                self.file = open(self.corpus_path, "r", encoding=self.encoding)
+                self.file = open(self.corpus_path, encoding=self.encoding)
                 line = self.file.__next__()
 
             deg_cmd, clean_cmd, deg_num = line[:-1].split(",")
@@ -231,7 +231,7 @@ class PianorollDataset(Dataset):
         self.transform = transform
         self.formatter = FORMATTERS["pianoroll"]
 
-        with open(corpus_path, "r", encoding=encoding) as f:
+        with open(corpus_path, encoding=encoding) as f:
             if self.corpus_lines is None and not in_memory:
                 for _ in tqdm.tqdm(f, desc="Counting nr corpus lines"):
                     self.corpus_lines += 1
@@ -244,7 +244,7 @@ class PianorollDataset(Dataset):
                 self.corpus_lines = len(self.lines)
 
         if not in_memory:
-            self.file = open(corpus_path, "r", encoding=encoding)
+            self.file = open(corpus_path, encoding=encoding)
 
     def __len__(self):
         return self.corpus_lines
@@ -305,7 +305,7 @@ class PianorollDataset(Dataset):
             line = self.file.__next__()
             if line is None:
                 self.file.close()
-                self.file = open(self.corpus_path, "r", encoding=self.encoding)
+                self.file = open(self.corpus_path, encoding=self.encoding)
                 line = self.file.__next__()
 
             deg_pr, clean_pr, deg_num = line[:-1].split(",")

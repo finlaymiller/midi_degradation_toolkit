@@ -35,7 +35,7 @@ def diff_pd(df1, df2):
         )
 
 
-class CommandVocab(object):
+class CommandVocab:
     def __init__(
         self,
         min_pitch=MIN_PITCH_DEFAULT,

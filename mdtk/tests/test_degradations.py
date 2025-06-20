@@ -961,7 +961,7 @@ def test_onset_shift(caplog):
         check_onset_shift_result(align_df, res, 50, np.inf, 50, np.inf)
 
         assert (
-            len(set([0, 50, 100, 150, 200]) - set(res["onset"])) == 1
+            len({0, 50, 100, 150, 200} - set(res["onset"])) == 1
             and len(set(res["onset"])) == 4
         ), "Onset with align_onset didn't align onset."
 
@@ -988,7 +988,7 @@ def test_onset_shift(caplog):
             and res["dur"].isin([50, 100, 150]).all()
         ), "Onset with align_dur and align_onset didn't align duration."
         assert (
-            len(set([0, 50, 100, 150, 200]) - set(res["onset"])) == 1
+            len({0, 50, 100, 150, 200} - set(res["onset"])) == 1
             and len(set(res["onset"])) == 4
         ), "Onset with align_dur and align_onset didn't align onset."
 

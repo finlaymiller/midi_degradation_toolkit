@@ -18,7 +18,7 @@ from mdtk.df_utils import get_random_excerpt
 from mdtk.formatters import FORMATTERS, create_corpus_csvs
 
 logo_path = Path(__file__, "..", "img", "logo.txt").resolve()
-with open(logo_path, "r") as ff:
+with open(logo_path) as ff:
     LOGO = ff.read()
 
 
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     if ARGS.degradation_kwargs is not None:
         if os.path.exists(ARGS.degradation_kwargs):
             # If file exists, assume that is what was passed
-            with open(ARGS.degradation_kwargs, "r") as json_file:
+            with open(ARGS.degradation_kwargs) as json_file:
                 degradation_kwargs = json.load(json_file)
         else:
             # File doesn't exist, assume json string was passed
@@ -289,7 +289,7 @@ if __name__ == "__main__":
 
     # Load config
     if ARGS.config is not None:
-        with open(ARGS.config, "r") as file:
+        with open(ARGS.config) as file:
             config = json.load(file)
         if ARGS.verbose:
             print(f"Loading from config file {ARGS.config}.")

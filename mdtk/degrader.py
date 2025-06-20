@@ -49,7 +49,7 @@ class Degrader:
 
         # Load config
         if config is not None:
-            with open(config, "r") as file:
+            with open(config) as file:
                 config = json.load(file)
 
             if "degradation_dist" in config:

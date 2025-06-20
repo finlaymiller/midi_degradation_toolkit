@@ -227,8 +227,8 @@ class ErrorDetectionTrainer(BaseTrainer):
         total_positive_labels = 0
         total_true_pos = 0
 
-        total_correct_per_deg = defaultdict(lambda: 0)
-        total_element_per_deg = defaultdict(lambda: 0)
+        total_correct_per_deg = defaultdict(int)
+        total_element_per_deg = defaultdict(int)
 
         # Setting the tqdm progress bar
         data_iter = tqdm.tqdm(
@@ -432,8 +432,8 @@ class ErrorClassificationTrainer(BaseTrainer):
         total_element = 0
         confusion_mat = None
 
-        total_correct_per_deg = defaultdict(lambda: 0)
-        total_element_per_deg = defaultdict(lambda: 0)
+        total_correct_per_deg = defaultdict(int)
+        total_element_per_deg = defaultdict(int)
 
         # Setting the tqdm progress bar
         data_iter = tqdm.tqdm(
@@ -614,11 +614,11 @@ class ErrorLocationTrainer(BaseTrainer):
         total_positive_labels = 0
         total_true_pos = 0
 
-        total_positive_per_deg = defaultdict(lambda: 0)
-        total_positive_labels_per_deg = defaultdict(lambda: 0)
-        total_true_pos_per_deg = defaultdict(lambda: 0)
-        total_correct_per_deg = defaultdict(lambda: 0)
-        total_element_per_deg = defaultdict(lambda: 0)
+        total_positive_per_deg = defaultdict(int)
+        total_positive_labels_per_deg = defaultdict(int)
+        total_true_pos_per_deg = defaultdict(int)
+        total_correct_per_deg = defaultdict(int)
+        total_element_per_deg = defaultdict(int)
 
         # Setting the tqdm progress bar
         data_iter = tqdm.tqdm(

@@ -63,7 +63,7 @@ def test_df_to_csv():
     assert os.path.exists(csv_name), "No csv created."
 
     # Check that notes were written correctly
-    with open(csv_name, "r") as csv_file:
+    with open(csv_name) as csv_file:
         for i, line in enumerate(csv_file):
             split = line.split(",")
             assert int(split[0]) == notes[i]["onset"], (
@@ -182,7 +182,7 @@ def test_midi_to_csv():
             )
 
     # Check that notes were written correctly
-    with open(csv_path, "r") as file:
+    with open(csv_path) as file:
         for i, line in enumerate(file):
             split = line.split(",")
             note = {
@@ -265,7 +265,7 @@ def test_midi_dir_to_csv():
 
     # Check that notes were written correctly
     for csv_path, notes in zip(csv_paths, [midi_notes, midi_notes2]):
-        with open(csv_path, "r") as file:
+        with open(csv_path) as file:
             for i, line in enumerate(file):
                 split = line.split(",")
                 note = {
