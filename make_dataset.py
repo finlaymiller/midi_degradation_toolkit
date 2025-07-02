@@ -18,7 +18,7 @@ from mdtk.df_utils import get_random_excerpt
 from mdtk.formatters import FORMATTERS, create_corpus_csvs
 
 logo_path = Path(__file__, "..", "img", "logo.txt").resolve()
-with open(logo_path) as ff:
+with open(logo_path, encoding="utf-8") as ff:
     LOGO = ff.read()
 
 
@@ -60,16 +60,17 @@ def parse_degradation_kwargs(kwarg_dict):
     for kk, kwarg_value in kwarg_dict.items():
         try:
             func_name, kwarg_name = kk.split("__", 1)
-        except ValueError:
-            raise ValueError(f"Supplied keyword [{kk}] must have a double underscore")
+        except ValueError as e:
+            raise ValueError(
+                f"Supplied keyword [{kk}] must have a double underscore"
+            ) from e
         assert func_name in func_names, f"{func_name} not in {func_names}"
         func_kwargs[func_name][kwarg_name] = kwarg_value
     return func_kwargs
 
 
 def clean_download_cache(dir_path=downloaders.DEFAULT_CACHE_PATH, prompt=True):
-    """
-    Delete the download cache directory and all files in it.
+    """Delete the download cache directory and all files in it.
 
     Parameters
     ----------
@@ -90,10 +91,11 @@ def clean_download_cache(dir_path=downloaders.DEFAULT_CACHE_PATH, prompt=True):
         print(f"Download cache ({dir_path}) is clear and deleted already.")
         return True
 
+    rsp = None
     if prompt:
-        response = input(f"Delete download cache ({dir_path})? [y/N]: ")
+        rsp = input(f"Delete download cache ({dir_path})? [y/N]: ")
 
-    if (not prompt) or response in ["y", "ye", "yes"]:
+    if (not prompt) or rsp in ["y", "ye", "yes"]:
         try:
             shutil.rmtree(dir_path)
         except Exception:
@@ -179,6 +181,23 @@ def parse_args(args_input=None):
         "default, will use them all.",
     )
     parser.add_argument(
+        "--num-variants",
+        metavar="nv",
+        type=int,
+        help="The number of degraded versions of each file to create. "
+        "Each variant will have a different random degradation applied. "
+        "If set to 1 (default), the script works as normal. "
+        "If set to a higher value, multiple variants will be generated "
+        "with variant-specific filenames (e.g., filename_v001.csv).",
+        default=1,
+    )
+    parser.add_argument(
+        "--no-excerpt",
+        action="store_true",
+        help="Use the whole file instead of an excerpt. "
+        "This will ignore --excerpt-length and --min-notes.",
+    )
+    parser.add_argument(
         "--excerpt-length",
         metavar="ms",
         type=int,
@@ -192,7 +211,7 @@ def parse_args(args_input=None):
         "--min-notes",
         metavar="N",
         type=int,
-        default=10,
+        default=4,
         help="The minimum number of notes required for an excerpt to be valid.",
     )
     parser.add_argument(
@@ -266,7 +285,7 @@ if __name__ == "__main__":
         sys.exit(0 if clean_ok else 1)
 
     if ARGS.seed is None:
-        seed = np.random.randint(0, 2 ** 32)
+        seed = np.random.randint(0, 2**32)
         print(f"No random seed supplied. Setting to {seed}.")
     else:
         seed = ARGS.seed
@@ -278,7 +297,7 @@ if __name__ == "__main__":
     if ARGS.degradation_kwargs is not None:
         if os.path.exists(ARGS.degradation_kwargs):
             # If file exists, assume that is what was passed
-            with open(ARGS.degradation_kwargs) as json_file:
+            with open(ARGS.degradation_kwargs, encoding="utf-8") as json_file:
                 degradation_kwargs = json.load(json_file)
         else:
             # File doesn't exist, assume json string was passed
@@ -289,7 +308,7 @@ if __name__ == "__main__":
 
     # Load config
     if ARGS.config is not None:
-        with open(ARGS.config) as file:
+        with open(ARGS.config, encoding="utf-8") as file:
             config = json.load(file)
         if ARGS.verbose:
             print(f"Loading from config file {ARGS.config}.")
@@ -330,7 +349,7 @@ if __name__ == "__main__":
     if len(ARGS.formats) == 1 and ARGS.formats[0].lower() == "none":
         formats = []
     else:
-        assert all([name in FORMATTERS.keys() for name in ARGS.formats]), (
+        assert all([name in FORMATTERS for name in ARGS.formats]), (
             f"all provided formats {ARGS.formats} must be in the "
             "list of available formats {list(FORMATTERS.keys())}"
         )
@@ -482,7 +501,9 @@ if __name__ == "__main__":
     input_data.sort()
     np.random.shuffle(input_data)  # This is important for join_notes
 
-    meta_file = open(os.path.join(ARGS.output_dir, "metadata.csv"), "w")
+    meta_file = open(
+        os.path.join(ARGS.output_dir, "metadata.csv"), "w", encoding="utf-8"
+    )
 
     # Perform degradations and write degraded data to output ==================
     # output to output_dir/degraded/dataset_name/filename.csv
@@ -518,7 +539,9 @@ if __name__ == "__main__":
     nr_splits = len(split_names)
 
     # Write out deg_choices to degradation_ids.csv
-    with open(os.path.join(ARGS.output_dir, "degradation_ids.csv"), "w") as file:
+    with open(
+        os.path.join(ARGS.output_dir, "degradation_ids.csv"), "w", encoding="utf-8"
+    ) as file:
         file.write("id,degradation_name\n")
         for i, deg_name in enumerate(deg_choices):
             file.write(f"{i},{deg_name}\n")
@@ -530,26 +553,22 @@ if __name__ == "__main__":
     split_counts = np.zeros(nr_splits)
 
     meta_file.write("altered_csv_path,degraded,degradation_id,clean_csv_path,split\n")
-    for i, data in enumerate(tqdm(input_data, desc="Degrading data")):
+    total_variants = len(input_data) * ARGS.num_variants
+    progress_desc = f"Degrading data ({ARGS.num_variants} variant{'s' if ARGS.num_variants != 1 else ''} per file)"
+    for i, data in enumerate(tqdm(input_data, desc=progress_desc)):
         dataset, rel_path, file_path, note_df = data
-        rel_path = f"{rel_path[:-3]}csv"
-        # First, get the degradation order for this iteration.
-        # Get the current distribution of degradations
-        if np.sum(deg_counts) == 0:  # First iteration, set to uniform
-            current_deg_dist = np.ones(nr_degs) / nr_degs
-            current_split_dist = np.ones(nr_splits) / nr_splits
-        else:
-            current_deg_dist = deg_counts / np.sum(deg_counts)
-            current_split_dist = split_counts / np.sum(split_counts)
+        base_rel_path = f"{rel_path[:-3]}csv"
 
-        # Grab an excerpt from this df
-        excerpt = get_random_excerpt(
-            note_df,
-            min_notes=ARGS.min_notes,
-            excerpt_length=ARGS.excerpt_length,
-            first_onset_range=(0, 200),
-            iterations=10,
-        )
+        # Grab an excerpt from this df once for all variants
+        excerpt = note_df
+        if not ARGS.no_excerpt:
+            excerpt = get_random_excerpt(
+                note_df,
+                min_notes=ARGS.min_notes,
+                excerpt_length=ARGS.excerpt_length,
+                first_onset_range=(0, 200),
+                iterations=10,
+            )
 
         # If no valid excerpt was found, skip this piece
         if excerpt is None:
@@ -560,69 +579,96 @@ if __name__ == "__main__":
             )
             continue
 
-        # Try degradations in reverse order of the difference between
-        # their current distribution and their desired distribution.
-        diffs = goal_deg_dist - current_deg_dist
-        degs_sorted = sorted(zip(diffs, deg_choices, list(range(len(deg_choices)))))[
-            ::-1
-        ]
+        # Generate num_variants versions of this excerpt
+        for variant_num in range(ARGS.num_variants):
+            # Create variant-specific file names
+            if ARGS.num_variants > 1:
+                variant_suffix = f"_v{variant_num:03d}"
+                rel_path = base_rel_path[:-4] + variant_suffix + ".csv"
+            else:
+                rel_path = base_rel_path
 
-        # Calculate split in the same way (but only save the first)
-        split_diffs = split_props - current_split_dist
-        _, split_name, split_num = sorted(
-            zip(split_diffs, split_names, list(range(nr_splits)))
-        )[-1]
+            # First, get the degradation order for this iteration.
+            # Get the current distribution of degradations
+            if np.sum(deg_counts) == 0:  # First iteration, set to uniform
+                current_deg_dist = np.ones(nr_degs) / nr_degs
+                current_split_dist = np.ones(nr_splits) / nr_splits
+            else:
+                current_deg_dist = deg_counts / np.sum(deg_counts)
+                current_split_dist = split_counts / np.sum(split_counts)
 
-        # Make default labels for no degradation
-        clean_path = os.path.join("clean", dataset, rel_path)
-        altered_path = clean_path
-        deg_binary = 0
+            # For multiple variants, we want more randomness in degradation selection
+            # So we'll use random selection weighted by the target distribution
+            if ARGS.num_variants > 1:
+                # Use random selection based on target distribution for variants
+                deg_num = np.random.choice(len(deg_choices), p=goal_deg_dist)
+                deg_name = deg_choices[deg_num]
+                degs_to_try = [(0, deg_name, deg_num)]  # Just try this one degradation
+            else:
+                # Use the original deterministic approach for single variant
+                diffs = goal_deg_dist - current_deg_dist
+                degs_to_try = sorted(
+                    zip(diffs, deg_choices, list(range(len(deg_choices))))
+                )[::-1]
 
-        # Try to perform a degradation
-        degraded = None
-        for diff, deg_name, deg_num in degs_sorted:
-            # Break for no degradation
-            if deg_name == "none":
-                break
+            # Calculate split in the same way (but only save the first)
+            split_diffs = split_props - current_split_dist
+            _, split_name, split_num = sorted(
+                zip(split_diffs, split_names, list(range(nr_splits)))
+            )[-1]
 
-            # Try the degradation
-            deg_fun = degradations.DEGRADATIONS[deg_name]
-            deg_fun_kwargs = degradation_kwargs[deg_name]  # degradation_kwargs
-            # at top of main call
-            logging.disable(logging.WARNING)
-            degraded = deg_fun(excerpt, **deg_fun_kwargs)
-            logging.disable(logging.NOTSET)
+            # Make default labels for no degradation
+            clean_path = os.path.join("clean", dataset, rel_path)
+            altered_path = clean_path
+            deg_binary = 0
 
-            if degraded is not None:
-                # Update labels
-                deg_binary = 1
-                altered_path = os.path.join("altered", dataset, rel_path)
+            # Try to perform a degradation
+            degraded = None
+            deg_num = 0
+            for diff, deg_name, deg_num in degs_to_try:
+                # Break for no degradation
+                if deg_name == "none":
+                    break
 
-                # Write degraded csv
-                altered_outpath = os.path.join(ARGS.output_dir, altered_path)
-                fileio.df_to_csv(degraded, altered_outpath)
-                break
+                # Try the degradation
+                deg_fun = degradations.DEGRADATIONS[deg_name]
+                deg_fun_kwargs = degradation_kwargs[deg_name]
+                # at top of main call
+                logging.disable(logging.WARNING)
+                degraded = deg_fun(excerpt, **deg_fun_kwargs)
+                logging.disable(logging.NOTSET)
 
-        # Write data
-        if not (degraded is None and ARGS.clean_prop == 0):
-            # Update counts
-            deg_counts[deg_num] += 1
-            split_counts[split_num] += 1
+                if degraded is not None:
+                    # Update labels
+                    deg_binary = 1
+                    altered_path = os.path.join("altered", dataset, rel_path)
 
-            # Write clean csv
-            clean_outpath = os.path.join(ARGS.output_dir, clean_path)
-            fileio.df_to_csv(excerpt, clean_outpath)
+                    # Write degraded csv
+                    altered_outpath = os.path.join(ARGS.output_dir, altered_path)
+                    fileio.df_to_csv(degraded, altered_outpath)
+                    break
 
-            # Write metadata
-            meta_file.write(
-                f"{altered_path},{deg_binary},{deg_num}," f"{clean_path},{split_name}\n"
-            )
-        else:
-            logging.warning(
-                "Unable to degrade chosen excerpt from "
-                f"{file_path} and no clean excerpts requested."
-                " Skipping.",
-            )
+            # Write data
+            if not (degraded is None and ARGS.clean_prop == 0):
+                # Update counts
+                deg_counts[deg_num] += 1
+                split_counts[split_num] += 1
+
+                # Write clean csv
+                clean_outpath = os.path.join(ARGS.output_dir, clean_path)
+                fileio.df_to_csv(excerpt, clean_outpath)
+
+                # Write metadata
+                meta_file.write(
+                    f"{altered_path},{deg_binary},{deg_num},"
+                    f"{clean_path},{split_name}\n"
+                )
+            else:
+                logging.warning(
+                    "Unable to degrade chosen excerpt from "
+                    f"{file_path} and no clean excerpts requested."
+                    " Skipping.",
+                )
 
     meta_file.close()
 
@@ -633,6 +679,10 @@ if __name__ == "__main__":
     print("Count of degradations:")
     for deg_name, count in zip(deg_choices, deg_counts):
         print(f"\t* {deg_name}: {int(count)}")
+
+    if ARGS.num_variants > 1:
+        print(f"\nGenerated {ARGS.num_variants} variants per input file.")
+        print(f"Total variants created: {int(np.sum(deg_counts))}")
 
     print(
         f"\nYou will find the generated data at {ARGS.output_dir} "
